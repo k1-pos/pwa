@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem POS Kasir - Kelompok POS</title>
+    <!-- Framework Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Memanggil CSS milik Anggota 2 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
+    <!-- Halaman Login Utama -->
+    <div v-if="page === 'login'" class="login-wrapper">
+        <div class="login-box">
+            <div class="form-login">
+                <h2>SIGN IN</h2>
+                <p>Coba: admin / admin atau kasir1 / kasir1</p>
+                <input type="text" placeholder="Username" v-model="username" @keyup.enter="doLogin">
+                <input type="password" placeholder="Password" v-model="password" @keyup.enter="doLogin">
+                <button class="btn-login" @click="doLogin">LOGIN SYSTEM</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Menghubungkan Script 5 Anggota Lainnya -->
+<script src="navigasi.js"></script>
+<script src="kasir.js"></script>
+<script src="pembayaran.js"></script>
+<script src="admin.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
