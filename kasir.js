@@ -9,6 +9,7 @@ const addToCartLogic = (produk, keranjang) => {
     produk.stok--;
 };
 
+
 const changeQtyLogic = (item, change, products, removeItem) => {
     const produkAsli = products.value.find(p => p.id === item.id);
     if (change === 1 && produkAsli.stok <= 0) return;
