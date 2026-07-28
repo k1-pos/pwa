@@ -1,0 +1,177 @@
+/* ==========================================================================
+   [TUGAS ANGGOTA 1] - RESET, VARIABLES, TEMA GELAP (DARK MODE) & UI/UX
+   ========================================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+    --primary: #18bc9c;
+    --primary-light: #2563eb;
+    --dark: #2c3e50;
+    --bg-canvas: #1c1c1c;
+    --surface: #28292d;
+    --surface-card: #323339;
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --neon: #45f3ff;
+    --pink: #ff2770;
+    --danger: #e74c3c;
+    --warning: #f1c40f;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    background-color: var(--bg-canvas);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Halaman Login & Animasi Neon */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-box {
+    position: relative;
+    width: 380px;
+    height: 450px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.login-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 380px;
+    height: 420px;
+    background: linear-gradient(0deg, transparent, var(--neon), var(--neon));
+    transform-origin: bottom right;
+    animation: animate 6s linear infinite;
+}
+
+.login-box::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 380px;
+    height: 420px;
+    background: linear-gradient(0deg, transparent, var(--pink), var(--pink));
+    transform-origin: bottom right;
+    animation: animate 6s linear infinite;
+    animation-delay: -3s;
+}
+
+@keyframes animate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.form-login {
+    position: absolute;
+    inset: 2px;
+    background: #28292d;
+    border-radius: 8px;
+    z-index: 10;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-login h2 {
+    text-align: center;
+    color: var(--neon);
+    margin-bottom: 10px;
+    letter-spacing: 0.1em;
+}
+
+.form-login p {
+    text-align: center;
+    font-size: 0.85em;
+    opacity: 0.6;
+    margin-bottom: 20px;
+    color: var(--text-muted);
+}
+
+.form-login input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #333;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    outline: none;
+    border: 1px solid #444;
+    font-size: 14px;
+}
+
+.btn-login {
+    background: var(--neon);
+    color: #1c1c1c;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    padding: 14px;
+    border-radius: 4px;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.btn-login:hover {
+    box-shadow: 0 0 15px var(--neon);
+}
+
+/* Kartu Dashboard */
+.card-menu {
+    background: var(--surface);
+    padding: 40px 20px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid #444;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.card-menu:hover {
+    border-color: var(--neon);
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(69, 243, 255, 0.15);
+    background: var(--surface-card);
+}
+
+.disabled-card {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.disabled-card:hover {
+    border-color: #444;
+    transform: none;
+    background: var(--surface);
+    box-shadow: none;
+}
+
+.card-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+    display: block;
+}
