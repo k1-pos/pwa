@@ -13,7 +13,7 @@
     --primary: #18bc9c;
     --primary-light: #2563eb;
     --dark: #2c3e50;
-    --bg-canvas: #1c1c1c;
+    --bg-canvas: #414f61;
     --surface: #28292d;
     --surface-card: #323339;
     --text-main: #ffffff;
@@ -156,6 +156,10 @@ body {
     transform: translateY(-8px);
     box-shadow: 0 10px 20px rgba(69, 243, 255, 0.15);
     background: var(--surface-card);
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    -ms-transform: translateY(-8px);
+    -o-transform: translateY(-8px);
 }
 
 .disabled-card {
