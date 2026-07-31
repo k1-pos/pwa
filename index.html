@@ -6,13 +6,14 @@
     <title>Sistem POS Kasir - Kelompok POS</title>
     <!-- Framework Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- Memanggil CSS milik Anggota 2 -->
+    <!-- CSS Utama -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
-    <!-- Halaman Login Utama -->
+
+    <!-- 1. HALAMAN LOGIN (Anggota 1) -->
     <div v-if="page === 'login'" class="login-wrapper">
         <div class="login-box">
             <div class="form-login">
@@ -24,9 +25,106 @@
             </div>
         </div>
     </div>
+
+    <!-- UTAMA: HEADER & NAVIGASI (Anggota 2) -->
+    <div v-else style="padding: 20px; flex: 1;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #444;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="burgerBtn" onclick="toggleDrawer()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">☰</button>
+                <h2>Sistem POS (Role: {{ userRole }})</h2>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-login" @click="page = 'dashboard'" style="padding: 8px 16px;">Dashboard</button>
+                <button class="btn-login" @click="doLogout" style="padding: 8px 16px; background: var(--danger); color: white;">LOGOUT</button>
+            </div>
+        </header>
+
+        <!-- 2. DASHBOARD MENU UTAMA -->
+        <div v-if="page === 'dashboard'" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div class="card-menu" @click="page = 'kasir'">
+                <span class="card-icon">🛒</span>
+                <h3>Menu Kasir</h3>
+            </div>
+            <div class="card-menu" :class="{ 'disabled-card': userRole !== 'admin' }" @click="userRole === 'admin' ? page = 'admin' : null">
+                <span class="card-icon">📦</span>
+                <h3>Stok Gudang (Admin)</h3>
+            </div>
+        </div>
+
+        <!-- 3. HALAMAN KASIR & KERANJANG (Anggota 3 & 4) -->
+        <div v-if="page === 'kasir'" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <!-- Daftar Produk -->
+            <div>
+                <h3>Daftar Produk</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div v-for="p in products" :key="p.id" class="card-menu" @click="addToCart(p)" style="padding: 15px;">
+                        <span style="font-size: 30px;">{{ p.icon }}</span>
+                        <h4>{{ p.nama }}</h4>
+                        <p>Rp {{ p.harga.toLocaleString() }}</p>
+                        <small>Stok: {{ p.stok }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keranjang Belanja -->
+            <div style="background: var(--surface); padding: 15px; border-radius: 8px;">
+                <h3>Keranjang</h3>
+                <div v-for="item in keranjang" :key="item.id" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">
+                    <div>
+                        <strong>{{ item.nama }}</strong><br>
+                        <small>Rp {{ item.harga.toLocaleString() }} x {{ item.qty }}</small>
+                    </div>
+                    <div>
+                        <button @click="changeQty(item, -1)" style="padding: 2px 8px;">-</button>
+                        <button @click="changeQty(item, 1)" style="padding: 2px 8px; margin-left: 5px;">+</button>
+                        <button @click="removeItem(item)" style="padding: 2px 8px; margin-left: 5px; background: var(--danger); color: white; border: none;">x</button>
+                    </div>
+                </div>
+                <hr style="margin: 15px 0; border-color: #444;">
+                <h4>Total: Rp {{ totalHarga.toLocaleString() }}</h4>
+            </div>
+        </div>
+
+        <!-- 4. HALAMAN STOK GUDANG ADMIN (Anggota 5 / 6) -->
+        <div v-if="page === 'admin' && userRole === 'admin'">
+            <h3>Manajemen Stok Gudang</h3>
+            <div style="margin: 15px 0; display: flex; gap: 10px;">
+                <input type="text" placeholder="Nama Produk" v-model="newProduct.nama" style="padding: 8px;">
+                <input type="number" placeholder="Harga" v-model="newProduct.harga" style="padding: 8px;">
+                <input type="number" placeholder="Stok Initial" v-model="newProduct.stok" style="padding: 8px;">
+                <button class="btn-login" @click="addNewProduct" style="padding: 8px 15px;">+ Tambah Produk</button>
+            </div>
+            <table border="1" style="width: 100%; text-align: left; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="background: #333;">
+                        <th style="padding: 8px;">Produk</th>
+                        <th style="padding: 8px;">Harga</th>
+                        <th style="padding: 8px;">Stok Gudang</th>
+                        <th style="padding: 8px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="p in products" :key="p.id">
+                        <td style="padding: 8px;">{{ p.icon }} {{ p.nama }}</td>
+                        <td style="padding: 8px;">Rp {{ p.harga.toLocaleString() }}</td>
+                        <td style="padding: 8px;">{{ p.stok }}</td>
+                        <td style="padding: 8px;">
+                            <button @click="deleteProduct(p.id)" style="background: var(--danger); color: white; border: none; padding: 5px 10px; cursor: pointer;">Hapus</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- UI TOAST UNDO SNACKBAR (Anggota 4) -->
+    <div id="undoBar" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 12px 20px; border-radius: 5px; display: none; border-left: 4px solid var(--neon);">
+        <span id="undoMessage">Item telah dihapus</span>
+        <button @click="undoDelete" style="margin-left: 15px; background: var(--neon); color: black; border: none; padding: 4px 10px; cursor: pointer; font-weight: bold;">UNDO</button>
+    </div>
 </div>
 
-<!-- Menghubungkan Script 5 Anggota Lainnya -->
+<!-- Menghubungkan Script 5 Anggota -->
 <script src="navigasi.js"></script>
 <script src="kasir.js"></script>
 <script src="pembayaran.js"></script>
