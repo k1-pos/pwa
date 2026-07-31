@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <!-- 3. HALAMAN KASIR & KERANJANG (Anggota 3 & 4) -->
+        <!-- 3. HALAMAN KASIR & KERANJANG & PEMBAYARAN (Anggota 3 & 4) -->
         <div v-if="page === 'kasir'" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
             <!-- Daftar Produk -->
             <div>
@@ -66,8 +66,8 @@
                 </div>
             </div>
 
-            <!-- Keranjang Belanja -->
-            <div style="background: var(--surface); padding: 15px; border-radius: 8px;">
+            <!-- Keranjang Belanja & Pembayaran -->
+            <div style="background: var(--surface); padding: 15px; border-radius: 8px; display: flex; flex-direction: column;">
                 <h3>Keranjang</h3>
                 <div v-for="item in keranjang" :key="item.id" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">
                     <div>
@@ -80,8 +80,30 @@
                         <button @click="removeItem(item)" style="padding: 2px 8px; margin-left: 5px; background: var(--danger); color: white; border: none;">x</button>
                     </div>
                 </div>
+
+                <!-- METODE PEMBAYARAN TUNAI / QRIS (TAMBAHAN FITUR ANGGOTA 4) -->
+                <div v-if="totalHarga > 0" style="margin-top: 15px; border-top: 1px dashed #555; padding-top: 15px;">
+                    <label style="font-size: 0.9em; opacity: 0.8;">Metode Pembayaran:</label>
+                    <select v-model="paymentMethod" style="width: 100%; padding: 8px; margin-top: 5px; background: #333; color: white; border: 1px solid #555; border-radius: 4px;">
+                        <option value="CASH">Tunai / Cash</option>
+                        <option value="QRIS">QRIS Digital</option>
+                    </select>
+
+                    <div v-if="paymentMethod === 'CASH'" style="margin-top: 10px;">
+                        <label style="font-size: 0.85em; opacity: 0.8;">Uang Diterima (Rp):</label>
+                        <input type="number" v-model.number="cashReceived" placeholder="Masukkan nominal" style="width: 100%; padding: 8px; margin-top: 5px; background: #333; color: white; border: 1px solid #555; border-radius: 4px;">
+                        <p v-if="cashChange >= 0" style="text-align: right; margin-top: 5px; color: var(--warning); font-weight: bold;">
+                            Kembalian: Rp {{ cashChange.toLocaleString() }}
+                        </p>
+                    </div>
+                </div>
+
                 <hr style="margin: 15px 0; border-color: #444;">
-                <h4>Total: Rp {{ totalHarga.toLocaleString() }}</h4>
+                <h4 style="color: var(--neon); text-align: right; font-size: 1.3em;">Total: Rp {{ totalHarga.toLocaleString() }}</h4>
+
+                <button v-if="totalHarga > 0" class="btn-login" @click="initiatePayment" style="margin-top: 15px; background: var(--warning); color: black;">
+                    PROSES BAYAR
+                </button>
             </div>
         </div>
 
@@ -114,6 +136,40 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP QRIS -->
+    <div v-if="showQRIS" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; color: black; padding: 25px; border-radius: 12px; text-align: center; max-width: 350px; width: 100%;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" style="width: 120px; margin-bottom: 10px;" alt="QRIS">
+            <p style="font-weight: bold;">Scan QR Code Di Bawah</p>
+            <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=POS-TRX-' + currentTransactionId" style="margin: 10px 0;" alt="QR Code">
+            <h3 style="color: var(--primary);">Rp {{ totalHarga.toLocaleString() }}</h3>
+            <button class="btn-login" @click="finalizeTransaction" style="width: 100%; margin-top: 15px; background: var(--primary); color: white;">KONFIRMASI LUNAS</button>
+            <button @click="showQRIS = false" style="width: 100%; margin-top: 5px; padding: 8px; background: none; border: none; cursor: pointer;">Batal</button>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP STRUK PEMBAYARAN -->
+    <div v-if="showReceipt" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; color: black; padding: 25px; border-radius: 12px; text-align: center; max-width: 380px; width: 100%;">
+            <span style="font-size: 40px;">✅</span>
+            <h3 style="color: green; margin-bottom: 10px;">Transaksi Berhasil!</h3>
+            <div style="font-family: monospace; text-align: left; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; font-size: 0.85em; color: black;">
+                <div style="text-align: center; font-weight: bold;">=== TOKO KASIR POS ===</div>
+                <div>ID: #{{ currentTransactionId }}</div>
+                <div>Metode: {{ paymentMethod }}</div>
+                <hr style="margin: 5px 0;">
+                <div v-for="item in lastReceiptData" :key="item.id">
+                    {{ item.nama }} x{{ item.qty }} = Rp {{ (item.harga * item.qty).toLocaleString() }}
+                </div>
+                <hr style="margin: 5px 0;">
+                <div style="font-weight: bold; text-align: right;">TOTAL: Rp {{ totalBackup.toLocaleString() }}</div>
+                <div v-if="paymentMethod === 'CASH'" style="text-align: right;">BAYAR: Rp {{ cashReceivedBackup.toLocaleString() }}</div>
+                <div v-if="paymentMethod === 'CASH'" style="text-align: right;">KEMBALI: Rp {{ (cashReceivedBackup - totalBackup).toLocaleString() }}</div>
+            </div>
+            <button class="btn-login" @click="closeReceipt" style="width: 100%; margin-top: 15px; background: #333; color: white;">SELESAI & KEMBALI</button>
         </div>
     </div>
 

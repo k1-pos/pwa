@@ -5,11 +5,21 @@ const { createApp, ref, computed } = Vue;
 
 createApp({
   setup() {
-    // State Navigasi & Auth
+    // State Navigasi & Auth (Anggota 1 & 2)
     const page = ref("login");
     const username = ref("");
     const password = ref("");
     const userRole = ref("");
+
+    // State QRIS & Struk Pembayaran (Anggota 4)
+    const showQRIS = ref(false);
+    const showReceipt = ref(false);
+    const currentTransactionId = ref("");
+    const paymentMethod = ref("CASH");
+    const cashReceived = ref(0);
+    const lastReceiptData = ref([]);
+    const totalBackup = ref(0);
+    const cashReceivedBackup = ref(0);
 
     // Data Produk & Keranjang (Anggota 3 & 6)
     const keranjang = ref([]);
@@ -26,9 +36,8 @@ createApp({
       if ((username.value === "admin" && password.value === "admin") || (username.value === "kasir1" && password.value === "kasir1")) {
         userRole.value = username.value.includes("admin") ? "admin" : "kasir";
         page.value = "dashboard";
-        alert("Login Berhasil!");
       } else {
-        alert("Username atau Password salah!");
+        alert("Username atau Password salah! (Gunakan: admin/admin atau kasir1/kasir1)");
       }
     };
 
@@ -39,7 +48,7 @@ createApp({
       userRole.value = "";
     };
 
-    // Hubungkan Logika Kasir, Pembayaran & Admin dari File Lain
+    // Hubungkan Logika Kasir, Pembayaran & Admin dari File Lain milik Anggota (navigasi.js, kasir.js, pembayaran.js, admin.js)
     const addToCart = (produk) => addToCartLogic(produk, keranjang);
     const changeQty = (item, change) => changeQtyLogic(item, change, products, removeItem);
     const removeItem = (item) => removeItemLogic(item, products, keranjang, undoItemCache);
@@ -47,10 +56,43 @@ createApp({
     const addNewProduct = () => addNewProductLogic(newProduct, products);
     const deleteProduct = (id) => deleteProductLogic(id, products);
 
-    // Hitung Total Belanja
+    // Hitung Total Belanja & Kembalian
     const totalHarga = computed(() => {
       return keranjang.value.reduce((total, item) => total + item.harga * item.qty, 0);
     });
+
+    const cashChange = computed(() => {
+      return cashReceived.value - totalHarga.value;
+    });
+
+    // Fitur Transaksi QRIS & Cash
+    const initiatePayment = () => {
+      currentTransactionId.value = Math.floor(Date.now() / 1000).toString();
+      if (paymentMethod.value === "CASH") {
+        if (cashReceived.value < totalHarga.value) {
+          alert("Uang tunai kurang dari total tagihan!");
+          return;
+        }
+        finalizeTransaction();
+      } else {
+        showQRIS.value = true;
+      }
+    };
+
+    const finalizeTransaction = () => {
+      lastReceiptData.value = [...keranjang.value];
+      totalBackup.value = totalHarga.value;
+      cashReceivedBackup.value = cashReceived.value;
+      showQRIS.value = false;
+      showReceipt.value = true;
+    };
+
+    const closeReceipt = () => {
+      keranjang.value = [];
+      cashReceived.value = 0;
+      showReceipt.value = false;
+      page.value = "dashboard";
+    };
 
     return {
       page,
@@ -61,6 +103,15 @@ createApp({
       newProduct,
       keranjang,
       totalHarga,
+      showQRIS,
+      showReceipt,
+      currentTransactionId,
+      paymentMethod,
+      cashReceived,
+      cashChange,
+      lastReceiptData,
+      totalBackup,
+      cashReceivedBackup,
       doLogin,
       doLogout,
       addToCart,
@@ -69,6 +120,9 @@ createApp({
       undoDelete,
       addNewProduct,
       deleteProduct,
+      initiatePayment,
+      finalizeTransaction,
+      closeReceipt
     };
   },
 }).mount("#app");
