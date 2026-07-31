@@ -13,7 +13,7 @@
 
 <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
 
-    <!-- 1. HALAMAN LOGIN (Anggota 1) -->
+    <!-- 1. HALAMAN LOGIN -->
     <div v-if="page === 'login'" class="login-wrapper">
         <div class="login-box">
             <div class="form-login">
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <!-- UTAMA: HEADER & NAVIGASI (Anggota 2) -->
+    <!-- UTAMA: HEADER & NAVIGASI -->
     <div v-else style="padding: 20px; flex: 1;">
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #444;">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <!-- 3. HALAMAN KASIR & KERANJANG & PEMBAYARAN (Anggota 3 & 4) -->
+        <!-- 3. HALAMAN KASIR & KERANJANG -->
         <div v-if="page === 'kasir'" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
             <!-- Daftar Produk -->
             <div>
@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <!-- Keranjang Belanja & Pembayaran -->
+            <!-- Keranjang Belanja & Form Pembayaran -->
             <div style="background: var(--surface); padding: 15px; border-radius: 8px; display: flex; flex-direction: column;">
                 <h3>Keranjang</h3>
                 <div v-for="item in keranjang" :key="item.id" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">
@@ -81,33 +81,33 @@
                     </div>
                 </div>
 
-                <!-- METODE PEMBAYARAN TUNAI / QRIS (TAMBAHAN FITUR ANGGOTA 4) -->
-                <div v-if="totalHarga > 0" style="margin-top: 15px; border-top: 1px dashed #555; padding-top: 15px;">
-                    <label style="font-size: 0.9em; opacity: 0.8;">Metode Pembayaran:</label>
+                <hr style="margin: 15px 0; border-color: #444;">
+                <h4 style="color: var(--neon); font-size: 1.2em;">Total: Rp {{ totalHarga.toLocaleString() }}</h4>
+
+                <!-- BAGIAN METODE PEMBAYARAN TUNAI & QRIS -->
+                <div v-if="keranjang.length > 0" style="margin-top: 15px; border-top: 1px dashed #555; padding-top: 15px;">
+                    <label style="font-size: 0.9em; opacity: 0.8; color: white;">Metode Pembayaran:</label>
                     <select v-model="paymentMethod" style="width: 100%; padding: 8px; margin-top: 5px; background: #333; color: white; border: 1px solid #555; border-radius: 4px;">
                         <option value="CASH">Tunai / Cash</option>
                         <option value="QRIS">QRIS Digital</option>
                     </select>
 
                     <div v-if="paymentMethod === 'CASH'" style="margin-top: 10px;">
-                        <label style="font-size: 0.85em; opacity: 0.8;">Uang Diterima (Rp):</label>
+                        <label style="font-size: 0.85em; opacity: 0.8; color: white;">Uang Diterima (Rp):</label>
                         <input type="number" v-model.number="cashReceived" placeholder="Masukkan nominal" style="width: 100%; padding: 8px; margin-top: 5px; background: #333; color: white; border: 1px solid #555; border-radius: 4px;">
                         <p v-if="cashChange >= 0" style="text-align: right; margin-top: 5px; color: var(--warning); font-weight: bold;">
                             Kembalian: Rp {{ cashChange.toLocaleString() }}
                         </p>
                     </div>
+
+                    <button class="btn-login" @click="initiatePayment" style="width: 100%; margin-top: 15px; background: var(--neon); color: black;">
+                        PROSES BAYAR
+                    </button>
                 </div>
-
-                <hr style="margin: 15px 0; border-color: #444;">
-                <h4 style="color: var(--neon); text-align: right; font-size: 1.3em;">Total: Rp {{ totalHarga.toLocaleString() }}</h4>
-
-                <button v-if="totalHarga > 0" class="btn-login" @click="initiatePayment" style="margin-top: 15px; background: var(--warning); color: black;">
-                    PROSES BAYAR
-                </button>
             </div>
         </div>
 
-        <!-- 4. HALAMAN STOK GUDANG ADMIN (Anggota 5 / 6) -->
+        <!-- 4. HALAMAN STOK GUDANG ADMIN -->
         <div v-if="page === 'admin' && userRole === 'admin'">
             <h3>Manajemen Stok Gudang</h3>
             <div style="margin: 15px 0; display: flex; gap: 10px;">
@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <!-- UI TOAST UNDO SNACKBAR (Anggota 4) -->
+    <!-- UI TOAST UNDO SNACKBAR -->
     <div id="undoBar" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 12px 20px; border-radius: 5px; display: none; border-left: 4px solid var(--neon);">
         <span id="undoMessage">Item telah dihapus</span>
         <button @click="undoDelete" style="margin-left: 15px; background: var(--neon); color: black; border: none; padding: 4px 10px; cursor: pointer; font-weight: bold;">UNDO</button>
