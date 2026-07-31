@@ -28,6 +28,23 @@
 
     <!-- UTAMA: HEADER & NAVIGASI -->
     <div v-else style="padding: 20px; flex: 1;">
+        
+        <!-- NAVIGATION DRAWER / MENU SAMPING (Anggota 2 - navigasi.js) -->
+        <div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
+        <nav class="nav-drawer" id="drawer">
+            <div class="drawer-header">
+                <h2>Kelompok POS</h2>
+                <p>Sistem Kasir &amp; Laporan</p>
+            </div>
+            <ul class="drawer-menu">
+                <li><a href="#" @click="page = 'dashboard'; closeDrawer()">🏠 Home / Dashboard</a></li>
+                <li><a href="#" @click="page = 'kasir'; closeDrawer()">🛒 Menu Kasir</a></li>
+                <li v-if="userRole === 'admin'"><a href="#" @click="page = 'admin'; closeDrawer()">📦 Stok Gudang (Admin)</a></li>
+                <li><a href="#" @click="doLogout">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- HEADER ATAS -->
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #444;">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <button id="burgerBtn" onclick="toggleDrawer()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">☰</button>
@@ -84,7 +101,7 @@
                 <hr style="margin: 15px 0; border-color: #444;">
                 <h4 style="color: var(--neon); font-size: 1.2em;">Total: Rp {{ totalHarga.toLocaleString() }}</h4>
 
-                <!-- BAGIAN METODE PEMBAYARAN TUNAI & QRIS -->
+                <!-- METODE PEMBAYARAN TUNAI & QRIS -->
                 <div v-if="keranjang.length > 0" style="margin-top: 15px; border-top: 1px dashed #555; padding-top: 15px;">
                     <label style="font-size: 0.9em; opacity: 0.8; color: white;">Metode Pembayaran:</label>
                     <select v-model="paymentMethod" style="width: 100%; padding: 8px; margin-top: 5px; background: #333; color: white; border: 1px solid #555; border-radius: 4px;">
@@ -169,7 +186,7 @@
                 <div v-if="paymentMethod === 'CASH'" style="text-align: right;">BAYAR: Rp {{ cashReceivedBackup.toLocaleString() }}</div>
                 <div v-if="paymentMethod === 'CASH'" style="text-align: right;">KEMBALI: Rp {{ (cashReceivedBackup - totalBackup).toLocaleString() }}</div>
             </div>
-            <button class="btn-login" @click="closeReceipt" style="width: 100%; margin-top: 15px; background: #333; color: white;">SELESAI & KEMBALI</button>
+            <button class="btn-login" @click="closeReceipt" style="width: 100%; margin-top: 15px; background: #333; color: white;">SELESAI &amp; KEMBALI</button>
         </div>
     </div>
 
